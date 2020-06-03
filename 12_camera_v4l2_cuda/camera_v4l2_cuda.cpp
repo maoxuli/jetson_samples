@@ -147,8 +147,8 @@ set_defaults(context_t * ctx)
     ctx->cam_devname = "/dev/video0";
     ctx->cam_fd = -1;
     ctx->cam_pixfmt = V4L2_PIX_FMT_YUYV;
-    ctx->cam_w = 640;
-    ctx->cam_h = 480;
+    ctx->cam_w = 1920;
+    ctx->cam_h = 1080;
     ctx->frame = 0;
     ctx->save_n_frame = 0;
 
@@ -336,8 +336,8 @@ init_components(context_t * ctx)
     if (!camera_initialize(ctx))
         ERROR_RETURN("Failed to initialize camera device");
 
-    if (!display_initialize(ctx))
-        ERROR_RETURN("Failed to initialize display");
+    // if (!display_initialize(ctx))
+    //     ERROR_RETURN("Failed to initialize display");
 
     INFO("Initialize v4l2 components successfully");
     return true;
@@ -575,6 +575,9 @@ cuda_postprocess(context_t *ctx, int fd)
     return true;
 }
 
+#include <chrono>
+using namespace std::chrono;
+
 static bool
 start_capture(context_t * ctx)
 {
@@ -598,7 +601,10 @@ start_capture(context_t * ctx)
     transParams.transform_filter = NvBufferTransform_Filter_Smart;
 
     /* Enable render profiling information */
-    ctx->renderer->enableProfiling();
+    // ctx->renderer->enableProfiling();
+
+    auto start = system_clock::now();
+    int fps = 0; 
 
     fds[0].fd = ctx->cam_fd;
     fds[0].events = POLLIN;
@@ -678,17 +684,27 @@ start_capture(context_t * ctx)
             cuda_postprocess(ctx, ctx->render_dmabuf_fd);
 
             /* Preview */
-            ctx->renderer->render(ctx->render_dmabuf_fd);
+            // ctx->renderer->render(ctx->render_dmabuf_fd);
 
             /* Enqueue camera buffer back to driver */
             if (ioctl(ctx->cam_fd, VIDIOC_QBUF, &v4l2_buf))
                 ERROR_RETURN("Failed to queue camera buffers: %s (%d)",
                         strerror(errno), errno);
         }
+
+        fps++; 
+        auto end   = system_clock::now();
+        auto duration = duration_cast<milliseconds>(end - start);
+        if (duration.count() > 1000)
+        {
+            printf("fps: %d\n", fps);
+            start = end; 
+            fps = 0; 
+        }
     }
 
     /* Print profiling information when streaming stops */
-    ctx->renderer->printProfilingStats();
+    // ctx->renderer->printProfilingStats();
 
     if (ctx->cam_pixfmt == V4L2_PIX_FMT_MJPEG)
         delete ctx->jpegdec;
