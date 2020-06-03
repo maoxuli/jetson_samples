@@ -67,12 +67,12 @@ static io_method        io              = IO_METHOD_MMAP;
 static int              fd              = -1;
 struct buffer *         buffers         = NULL;
 static unsigned int     n_buffers       = 0;
-static unsigned int     width           = 640;
-static unsigned int     height          = 480;
-static unsigned int     count           = 100;
+static unsigned int     width           = 1920;
+static unsigned int     height          = 1080;
+static unsigned int     count           = 1000;
 static unsigned char *  cuda_out_buffer = NULL;
 static bool             cuda_zero_copy = false;
-static const char *     file_name       = "out.ppm";
+static const char *     file_name       = "/home/nvidia/out.ppm";
 static unsigned int     pixel_format    = V4L2_PIX_FMT_UYVY;
 static unsigned int     field           = V4L2_FIELD_INTERLACED;
 
@@ -209,9 +209,14 @@ read_frame                      (void)
     return 1;
 }
 
+#include <chrono>
+using namespace chrono;
+
 static void
 mainloop                        (void)
 {
+    auto start = system_clock::now();
+    int fps = 0; 
     while (count-- > 0) {
         for (;;) {
             fd_set fds;
@@ -243,6 +248,16 @@ mainloop                        (void)
                 break;
 
             /* EAGAIN - continue select loop. */
+        }
+
+        fps++; 
+        auto end   = system_clock::now();
+        auto duration = duration_cast<milliseconds>(end - start);
+        if (duration.count() > 1000)
+        {
+            printf("fps: %d\n", fps);
+            start = end; 
+            fps = 0; 
         }
     }
 }
