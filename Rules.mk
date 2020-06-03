@@ -57,6 +57,7 @@ endif
 CUDA_PATH 	:= /usr/local/cuda
 
 # Use absolute path for better access from everywhere
+SDK_DIR 	:= /usr/src/jetson_multimedia_api
 TOP_DIR 	:= /home/nvidia
 CLASS_DIR 	:= $(TOP_DIR)/jetson_samples/common/classes
 ALGO_CUDA_DIR 	:= $(TOP_DIR)/jetson_samples/common/algorithm/cuda
@@ -90,8 +91,8 @@ endif
 
 # All common header files
 CPPFLAGS += -std=c++11 \
-	-I"$(TOP_DIR)/include" \
-	-I"$(TOP_DIR)/include/libjpeg-8b" \
+	-I"$(SDK_DIR)/include" \
+	-I"$(SDK_DIR)/include/libjpeg-8b" \
 	-I"$(ALGO_CUDA_DIR)" \
 	-I"$(ALGO_TRT_DIR)" \
 	-I"$(TARGET_ROOTFS)/$(CUDA_PATH)/include" \
