@@ -57,7 +57,7 @@ endif
 CUDA_PATH 	:= /usr/local/cuda
 
 # Use absolute path for better access from everywhere
-TOP_DIR 	:= $(shell pwd | awk '{split($$0, f, "/samples"); print f[1]}')
+TOP_DIR 	:= /home/nvidia
 CLASS_DIR 	:= $(TOP_DIR)/jetson_samples/common/classes
 ALGO_CUDA_DIR 	:= $(TOP_DIR)/jetson_samples/common/algorithm/cuda
 ALGO_TRT_DIR 	:= $(TOP_DIR)/jetson_samples/common/algorithm/trt
