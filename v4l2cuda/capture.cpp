@@ -210,7 +210,7 @@ read_frame                      (void)
 }
 
 #include <chrono>
-using namespace chrono;
+using namespace std::chrono;
 
 static void
 mainloop                        (void)
